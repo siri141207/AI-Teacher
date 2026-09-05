@@ -31,6 +31,8 @@ app.add_middleware(
 
     allow_origins=[
         # Local development
+          "https://ai-teacher-2-nine.vercel.app",
+    "https://ai-teacher-2-ks4pqal4d-siri-b157.vercel.app",
         "http://localhost:5173",
         "http://127.0.0.1:5173",
 
