@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8000/api";
+const API_URL = "https://ai-teacher-01.onrender.com/api";
 
 // ==========================================
 // SIGNUP
