@@ -1,6 +1,6 @@
 import { connectAudioElement, startSimulation, stopSimulation, disconnectAnalyzer, registerSpeech, onWordBoundary } from "./audioAnalyzer";
 
-const API_URL = "https://ai-teacher-01.onrender.com";
+const API_URL = "https://ai-teacher-01.onrender.com/api";
 
 // ======================================================
 // VIDEO LESSON API (Task 1 & 2 Core)
