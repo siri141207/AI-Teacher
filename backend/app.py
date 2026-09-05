@@ -28,22 +28,11 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-
-    allow_origins=[
-        # Local development
-          "https://ai-teacher-2-nine.vercel.app",
-    "https://ai-teacher-2-ks4pqal4d-siri-b157.vercel.app",
+ allow_origins=[
         "http://localhost:5173",
         "http://127.0.0.1:5173",
-
-        "http://localhost:5174",
-        "http://127.0.0.1:5174",
-
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-
-        # Production Vercel frontend
-        "https://ai-teacher-2-ks4pqal4d-siri-b157.vercel.app",
+        "https://ai-teacher-2-nine.vercel.app",
+        "https://ai-teacher-2-ks4pqal4d-siri-b157.vercel.app"
     ],
 
     allow_credentials=True,
