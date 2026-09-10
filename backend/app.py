@@ -26,14 +26,14 @@ app = FastAPI(
 # CORS CONFIGURATION
 # =========================================================
 
+
 app.add_middleware(
     CORSMiddleware,
- allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "https://ai-teacher-2-nine.vercel.app",
-        "https://ai-teacher-2-ks4pqal4d-siri-b157.vercel.app"
-    ],
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
     allow_credentials=True,
     allow_methods=["*"],
