@@ -1,5 +1,4 @@
-const API_URL = "https://ai-teacher-01.onrender.com/api";
-
+const API_URL = "https://ai-teacher-ie76.onrender.com/api";
 // ======================================================
 // UPLOAD PDF
 // ======================================================
