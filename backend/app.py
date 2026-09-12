@@ -16,10 +16,7 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# =========================================================
-# CORS CONFIGURATION
-# =========================================================
-
+# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -28,42 +25,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# =========================================================
-# ROUTERS
-# =========================================================
-
+# Routers
 from api.lesson import router as lesson_router
 from api.documents import router as document_router
 from api.voice import router as voice_router
 from api.auth import router as auth_router
 
-# =========================================================
-# REGISTER ROUTERS
-# =========================================================
+app.include_router(lesson_router, prefix="/api")
+app.include_router(document_router, prefix="/api")
+app.include_router(voice_router, prefix="/api")
+app.include_router(auth_router, prefix="/api")
 
-app.include_router(
-    lesson_router,
-    prefix="/api"
-)
-
-app.include_router(
-    document_router,
-    prefix="/api"
-)
-
-app.include_router(
-    voice_router,
-    prefix="/api"
-)
-
-app.include_router(
-    auth_router,
-    prefix="/api"
-)
-
-# =========================================================
-# HOME
-# =========================================================
 
 @app.get("/")
 def home():
@@ -73,12 +45,7 @@ def home():
         "message": "Lilly AI Teacher backend is running 🚀"
     }
 
-# =========================================================
-# HEALTH CHECK
-# =========================================================
 
 @app.get("/health")
 def health():
-    return {
-        "status": "healthy"
-    }
+    return {"status": "healthy"}
