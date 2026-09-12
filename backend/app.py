@@ -4,11 +4,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
-# --------------------------------------------------
-# Main FastAPI application
-# --------------------------------------------------
-
 fastapi_app = FastAPI(
     title="Lilly - AI Teacher",
     description=(
@@ -19,81 +14,12 @@ fastapi_app = FastAPI(
     version="1.0.0"
 )
 
-
-# --------------------------------------------------
-# Routers
-# --------------------------------------------------
-
-from api.lesson import router as lesson_router
-from api.documents import router as document_router
-from api.voice import router as voice_router
-from api.auth import router as auth_router
-
-
-fastapi_app.include_router(
-    lesson_router,
-    prefix="/api"
-)
-
-fastapi_app.include_router(
-    document_router,
-    prefix="/api"
-)
-
-fastapi_app.include_router(
-    voice_router,
-    prefix="/api"
-)
-
-fastapi_app.include_router(
-    auth_router,
-    prefix="/api"
-)
-
-
-# --------------------------------------------------
-# Basic routes
-# --------------------------------------------------
-
-@fastapi_app.get("/")
-def home():
-    return {
-        "status": "online",
-        "service": "Lilly - AI Teacher",
-        "message": "Lilly AI Teacher backend is running 🚀"
-    }
-
-
-@fastapi_app.get("/health")
-def health():
-    return {
-        "status": "healthy"
-    }
-
-
-# --------------------------------------------------
 # CORS
-# --------------------------------------------------
-#
-# IMPORTANT:
-# We wrap the ENTIRE FastAPI application with
-# CORSMiddleware so that CORS headers are also
-# returned when an exception occurs inside a route.
-#
-
+# Allow the stable Vercel domain AND all Vercel preview/deployment URLs
 app = CORSMiddleware(
     app=fastapi_app,
     allow_origins=[
-        # Stable production domain
         "https://ai-teacher-2-nine.vercel.app",
-
-        # Current production deployment
-        "https://ai-teacher-2-17feqwgst-siri-b157.vercel.app",
-
-        # Previous deployment
-        "https://ai-teacher-2-ks4pqal4d-siri-b157.vercel.app",
-
-        # Local development
         "http://localhost:5173",
         "http://127.0.0.1:5173",
         "http://localhost:5174",
@@ -106,3 +32,27 @@ app = CORSMiddleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+from api.lesson import router as lesson_router
+from api.documents import router as document_router
+from api.voice import router as voice_router
+from api.auth import router as auth_router
+
+fastapi_app.include_router(lesson_router, prefix="/api")
+fastapi_app.include_router(document_router, prefix="/api")
+fastapi_app.include_router(voice_router, prefix="/api")
+fastapi_app.include_router(auth_router, prefix="/api")
+
+
+@fastapi_app.get("/")
+def home():
+    return {
+        "status": "online",
+        "service": "Lilly - AI Teacher",
+        "message": "Lilly AI Teacher backend is running 🚀"
+    }
+
+
+@fastapi_app.get("/health")
+def health():
+    return {"status": "healthy"}
