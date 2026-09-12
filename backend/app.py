@@ -28,34 +28,11 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-
-    allow_origins=[
-        # -------------------------------------------------
-        # PRODUCTION VERCEL FRONTEND
-        # -------------------------------------------------
-        "https://ai-teacher-2-nine.vercel.app",
-
-        # Vercel deployment URL
-        "https://ai-teacher-2-ks4pqal4d-siri-b157.vercel.app",
-
-        # -------------------------------------------------
-        # LOCAL DEVELOPMENT
-        # -------------------------------------------------
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-
-        "http://localhost:5174",
-        "http://127.0.0.1:5174",
-
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-    ],
-
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 # =========================================================
 # ROUTERS
