@@ -6,11 +6,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
-# =========================================================
-# FASTAPI APPLICATION
-# =========================================================
-
 app = FastAPI(
     title="Lilly - AI Teacher",
     description=(
@@ -20,7 +15,6 @@ app = FastAPI(
     ),
     version="1.0.0"
 )
-
 
 # =========================================================
 # CORS CONFIGURATION
@@ -42,7 +36,6 @@ from api.lesson import router as lesson_router
 from api.documents import router as document_router
 from api.voice import router as voice_router
 from api.auth import router as auth_router
-
 
 # =========================================================
 # REGISTER ROUTERS
@@ -68,7 +61,6 @@ app.include_router(
     prefix="/api"
 )
 
-
 # =========================================================
 # HOME
 # =========================================================
@@ -80,7 +72,6 @@ def home():
         "service": "Lilly - AI Teacher",
         "message": "Lilly AI Teacher backend is running 🚀"
     }
-
 
 # =========================================================
 # HEALTH CHECK
