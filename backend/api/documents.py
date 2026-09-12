@@ -1,6 +1,7 @@
 import os
 
 from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from ai.document_processor import extract_pdf_text
@@ -16,92 +17,124 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 @router.post("/documents/upload")
 async def upload_document(file: UploadFile = File(...)):
 
-    if not file.filename:
-        raise HTTPException(
-            status_code=400,
-            detail="No file provided."
-        )
-
-    if not file.filename.lower().endswith(".pdf"):
-        raise HTTPException(
-            status_code=400,
-            detail="Currently only PDF files are supported."
-        )
-
-    # Read uploaded file
-    content = await file.read()
-
-    # Check whether browser actually sent file data
-    if not content:
-        raise HTTPException(
-            status_code=400,
-            detail="Uploaded file contains no data."
-        )
-
-    print(
-        f"Received PDF: {file.filename} | "
-        f"Size: {len(content)} bytes"
-    )
-
-    # Save uploaded PDF
-    safe_filename = os.path.basename(file.filename)
-    file_path = os.path.join(UPLOAD_DIR, safe_filename)
+    print("========== DOCUMENT UPLOAD STARTED ==========")
+    print(f"Filename: {file.filename}")
+    print(f"Content type: {file.content_type}")
 
     try:
+        # 1. Check filename
+        if not file.filename:
+            return JSONResponse(
+                status_code=400,
+                content={"status": "error", "message": "No file provided."}
+            )
+
+        # 2. Check extension
+        if not file.filename.lower().endswith(".pdf"):
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "status": "error",
+                    "message": "Currently only PDF files are supported."
+                }
+            )
+
+        # 3. Read file
+        content = await file.read()
+
+        print(f"Received bytes: {len(content)}")
+
+        if not content:
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "status": "error",
+                    "message": "Uploaded file contains no data."
+                }
+            )
+
+        # 4. Save file
+        safe_filename = os.path.basename(file.filename)
+        file_path = os.path.join(UPLOAD_DIR, safe_filename)
+
         with open(file_path, "wb") as output:
             output.write(content)
+
+        print(f"Saved file: {file_path}")
+        print(f"Saved size: {os.path.getsize(file_path)} bytes")
+
+        # 5. Extract PDF text
+        try:
+            text = extract_pdf_text(file_path)
+        except Exception as error:
+            print(f"PDF EXTRACTION ERROR: {error}")
+
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "status": "error",
+                    "message": f"Document text extraction failed: {str(error)}"
+                }
+            )
+
+        print(f"Extracted characters: {len(text)}")
+
+        if not text.strip():
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "status": "error",
+                    "message": (
+                        "Could not extract text from this PDF. "
+                        "Make sure the PDF contains selectable text."
+                    )
+                }
+            )
+
+        # 6. Build RAG index
+        try:
+            chunks = split_text(text)
+            number_of_chunks = build_index(chunks)
+
+            print(f"RAG chunks created: {number_of_chunks}")
+
+        except Exception as error:
+            print(f"RAG ERROR: {error}")
+
+            return JSONResponse(
+                status_code=500,
+                content={
+                    "status": "error",
+                    "message": f"RAG indexing failed: {str(error)}"
+                }
+            )
+
+        # 7. SUCCESS
+        print("========== DOCUMENT UPLOAD SUCCESS ==========")
+
+        return JSONResponse(
+            status_code=200,
+            content={
+                "status": "success",
+                "filename": file.filename,
+                "characters": len(text),
+                "chunks": number_of_chunks,
+                "message": "Document processed successfully."
+            }
+        )
+
     except Exception as error:
-        raise HTTPException(
+
+        print("========== UNEXPECTED UPLOAD ERROR ==========")
+        print(str(error))
+
+        return JSONResponse(
             status_code=500,
-            detail=f"Could not save uploaded file: {error}"
+            content={
+                "status": "error",
+                "message": f"Unexpected upload error: {str(error)}"
+            }
         )
-
-    # Verify saved file
-    saved_size = os.path.getsize(file_path)
-
-    print(
-        f"Saved PDF: {file_path} | "
-        f"Size: {saved_size} bytes"
-    )
-
-    if saved_size == 0:
-        raise HTTPException(
-            status_code=400,
-            detail="Uploaded PDF was saved as an empty file."
-        )
-
-    # Extract text
-    try:
-        text = extract_pdf_text(file_path)
-    except Exception as error:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Document text extraction failed: {error}"
-        )
-
-    if not text.strip():
-        raise HTTPException(
-            status_code=400,
-            detail="Could not extract text from this PDF. Make sure the PDF contains selectable text."
-        )
-
-    # Create RAG chunks/index
-    try:
-        chunks = split_text(text)
-        number_of_chunks = build_index(chunks)
-    except Exception as error:
-        raise HTTPException(
-            status_code=500,
-            detail=f"RAG indexing failed: {error}"
-        )
-
-    return {
-        "status": "success",
-        "filename": file.filename,
-        "characters": len(text),
-        "chunks": number_of_chunks,
-        "message": "Document processed successfully."
-    }
 
 
 class SearchRequest(BaseModel):
@@ -124,6 +157,7 @@ def search_document(request: SearchRequest):
         }
 
     except Exception as error:
+
         raise HTTPException(
             status_code=500,
             detail=str(error)
