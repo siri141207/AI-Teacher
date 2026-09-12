@@ -84,8 +84,16 @@ def health():
 app = CORSMiddleware(
     app=fastapi_app,
     allow_origins=[
+        # Stable production domain
         "https://ai-teacher-2-nine.vercel.app",
+
+        # Current production deployment
+        "https://ai-teacher-2-17feqwgst-siri-b157.vercel.app",
+
+        # Previous deployment
         "https://ai-teacher-2-ks4pqal4d-siri-b157.vercel.app",
+
+        # Local development
         "http://localhost:5173",
         "http://127.0.0.1:5173",
         "http://localhost:5174",
@@ -93,6 +101,7 @@ app = CORSMiddleware(
         "http://localhost:3000",
         "http://127.0.0.1:3000",
     ],
+    allow_origin_regex=r"https://ai-teacher-2-[a-z0-9]+-siri-b157\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
